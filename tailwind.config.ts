@@ -12,6 +12,16 @@ const config: Config = {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      keyframes: {
+        "xp-popup": {
+          "0%": { opacity: "0", transform: "translateY(10px) scale(0.9)" },
+          "20%": { opacity: "1", transform: "translateY(0) scale(1.1)" },
+          "100%": { opacity: "0", transform: "translateY(-40px) scale(1)" },
+        },
+      },
+      animation: {
+        "xp-popup": "xp-popup 1.8s ease-out forwards",
+      },
     },
   },
   plugins: [],
