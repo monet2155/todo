@@ -1,5 +1,8 @@
-import { createClient } from '@/lib/supabase'
+import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Database } from '@/types/database'
 import type { QuestGrade, StatType } from '@/types'
+
+type AppSupabaseClient = SupabaseClient<Database>
 
 const XP_MAP: Record<QuestGrade, number> = {
   daily: 5,
@@ -12,13 +15,11 @@ export function calculateXP(grade: QuestGrade): number {
 }
 
 export async function applyStatGain(
+  supabase: AppSupabaseClient,
   userId: string,
   statType: StatType,
   xp: number,
 ): Promise<void> {
-  const supabase = createClient()
-
-  // Fetch current stats row (or default to 0 if first time)
   const { data: current, error: fetchError } = await supabase
     .from('stats')
     .select('strength, intelligence, charisma')
