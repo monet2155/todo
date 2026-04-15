@@ -34,3 +34,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# supabase cli cache (local project metadata, not source)
+supabase/.temp/
+supabase/.branches/
+
+# editor swap files
+*.swp
+*.swo
