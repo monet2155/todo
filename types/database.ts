@@ -23,6 +23,7 @@ export type Database = {
           npc_type?: 'knight' | 'rival' | 'sage'
           created_at?: string
         }
+        Relationships: []
       }
       quests: {
         Row: {
@@ -58,6 +59,7 @@ export type Database = {
           due_date?: string | null
           created_at?: string
         }
+        Relationships: []
       }
       completions: {
         Row: {
@@ -81,6 +83,7 @@ export type Database = {
           completed_at?: string
           week_number?: number
         }
+        Relationships: []
       }
       stats: {
         Row: {
@@ -107,6 +110,7 @@ export type Database = {
           charisma?: number
           updated_at?: string
         }
+        Relationships: []
       }
       recaps: {
         Row: {
@@ -139,6 +143,7 @@ export type Database = {
           status?: 'pending' | 'generating' | 'done' | 'failed'
           created_at?: string
         }
+        Relationships: []
       }
     }
     Views: Record<string, never>
