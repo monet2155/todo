@@ -1,5 +1,5 @@
 import { requireUser, getProfile } from '@/lib/auth'
-import { createServerSupabaseClient } from '@/lib/supabase'
+import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import LogoutButton from './LogoutButton'
 
