@@ -40,10 +40,9 @@ export async function applyStatGain(
   }
   updated[statType] = base[statType] + xp
 
-  const { error: upsertError } = await supabase.from('stats').upsert({
-    user_id: userId,
-    ...updated,
-  })
+  const { error: upsertError } = await supabase
+    .from('stats')
+    .upsert({ user_id: userId, ...updated }, { onConflict: 'user_id' })
 
   if (upsertError) {
     throw new Error(`Failed to update stats: ${upsertError.message}`)

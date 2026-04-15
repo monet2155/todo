@@ -41,17 +41,22 @@ export async function PATCH(
   // 2) completions 기록
   const now = new Date()
   const weekNumber = getISOWeekNumber(now)
-  await supabase.from('completions').insert({
+  const { error: completionError } = await supabase.from('completions').insert({
     quest_id: quest.id,
     user_id: user.id,
     completed_at: now.toISOString(),
     week_number: weekNumber,
   })
+  if (completionError) {
+    console.error('[complete quest] completion insert failed:', completionError)
+    return NextResponse.json({ error: completionError.message }, { status: 500 })
+  }
 
   // 3) 스탯 증가
   try {
     await applyStatGain(supabase, user.id, quest.stat_type, quest.xp)
   } catch (e) {
+    console.error('[complete quest] applyStatGain failed:', e)
     return NextResponse.json(
       { error: e instanceof Error ? e.message : 'stat update failed' },
       { status: 500 },

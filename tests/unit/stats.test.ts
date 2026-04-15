@@ -46,6 +46,7 @@ describe('applyStatGain', () => {
     await applyStatGain(client, 'user-1', 'strength', 5)
     expect(client.__upsert).toHaveBeenCalledWith(
       expect.objectContaining({ user_id: 'user-1', strength: 15, intelligence: 20, charisma: 5 }),
+      expect.objectContaining({ onConflict: 'user_id' }),
     )
   })
 
@@ -54,6 +55,7 @@ describe('applyStatGain', () => {
     await applyStatGain(client, 'user-1', 'intelligence', 15)
     expect(client.__upsert).toHaveBeenCalledWith(
       expect.objectContaining({ intelligence: 15 }),
+      expect.objectContaining({ onConflict: 'user_id' }),
     )
   })
 
@@ -62,6 +64,7 @@ describe('applyStatGain', () => {
     await applyStatGain(client, 'user-1', 'charisma', 30)
     expect(client.__upsert).toHaveBeenCalledWith(
       expect.objectContaining({ charisma: 30 }),
+      expect.objectContaining({ onConflict: 'user_id' }),
     )
   })
 
@@ -70,6 +73,7 @@ describe('applyStatGain', () => {
     await applyStatGain(client, 'new-user', 'strength', 5)
     expect(client.__upsert).toHaveBeenCalledWith(
       expect.objectContaining({ strength: 5, intelligence: 0, charisma: 0 }),
+      expect.objectContaining({ onConflict: 'user_id' }),
     )
   })
 

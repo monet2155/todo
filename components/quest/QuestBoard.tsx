@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import type { Quest, QuestGrade, StatType } from '@/types'
 import { groupQuestsByGrade, STAT_LABELS, GRADE_LABELS } from '@/lib/quest-utils'
 import QuestCard from './QuestCard'
@@ -8,7 +9,6 @@ import AddQuestModal from './AddQuestModal'
 
 type Props = {
   initialQuests: Quest[]
-  onStatsChanged?: () => void
 }
 
 type XPPopup = {
@@ -25,7 +25,8 @@ const STAT_COLORS: Record<StatType, string> = {
 
 const GRADE_ORDER: QuestGrade[] = ['main', 'weekly', 'daily']
 
-export default function QuestBoard({ initialQuests, onStatsChanged }: Props) {
+export default function QuestBoard({ initialQuests }: Props) {
+  const router = useRouter()
   const [quests, setQuests] = useState<Quest[]>(initialQuests)
   const [modalOpen, setModalOpen] = useState(false)
   const [popups, setPopups] = useState<XPPopup[]>([])
@@ -74,7 +75,8 @@ export default function QuestBoard({ initialQuests, onStatsChanged }: Props) {
       showPopup('완료 실패', 'text-red-400')
       return
     }
-    onStatsChanged?.()
+    // 서버 컴포넌트(대시보드) 재요청 → 스탯 숫자 갱신
+    router.refresh()
   }
 
   async function handleDelete(id: string) {
