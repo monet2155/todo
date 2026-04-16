@@ -1,16 +1,24 @@
 import type { Metadata } from 'next'
-import localFont from 'next/font/local'
+import { Cinzel, Cinzel_Decorative, Inter } from 'next/font/google'
 import './globals.css'
 
-const geistSans = localFont({
-  src: './fonts/GeistVF.woff',
-  variable: '--font-geist-sans',
-  weight: '100 900',
+const cinzel = Cinzel({
+  subsets: ['latin'],
+  variable: '--font-cinzel',
+  display: 'swap',
 })
-const geistMono = localFont({
-  src: './fonts/GeistMonoVF.woff',
-  variable: '--font-geist-mono',
-  weight: '100 900',
+
+const cinzelDeco = Cinzel_Decorative({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  variable: '--font-cinzel-deco',
+  display: 'swap',
+})
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
 })
 
 export const metadata: Metadata = {
@@ -24,10 +32,23 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="ko">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-950 text-gray-100 min-h-screen`}
-      >
+    <html lang="ko" className={`${cinzel.variable} ${cinzelDeco.variable} ${inter.variable}`}>
+      <head>
+        {/* Korean display font: Hahmlet (brush-stroke serif) + Noto Sans KR (body) */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@400;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap"
+          rel="stylesheet"
+        />
+        <style>{`
+          :root {
+            --font-hahmlet: 'Hahmlet';
+            --font-noto: 'Noto Sans KR';
+          }
+        `}</style>
+      </head>
+      <body className="antialiased">
         {children}
       </body>
     </html>
