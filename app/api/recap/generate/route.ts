@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import type { RecapScript } from '@/types'
 
-// Vercel Background Functions — 응답 반환 후 최대 15분 실행 보장 (Pro 플랜)
-export const maxDuration = 900
+// Vercel Background Functions — Pro 플랜 최대 800초
+export const maxDuration = 800
 
 // POST /api/recap/generate
 // 즉시 { status: 'generating' } 반환 후 백그라운드 처리
