@@ -58,7 +58,7 @@ export function calculateStreak(completionDates: string[], now: Date = new Date(
   if (completionDates.length === 0) return 0
 
   // Deduplicate and sort dates descending
-  const uniqueDates = [...new Set(completionDates.map((d) => d.slice(0, 10)))].sort().reverse()
+  const uniqueDates = Array.from(new Set(completionDates.map((d) => d.slice(0, 10)))).sort().reverse()
 
   const toDay = (dateStr: string) => {
     const [y, m, d] = dateStr.split('-').map(Number)

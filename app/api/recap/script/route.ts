@@ -26,19 +26,26 @@ export async function POST(request: Request) {
 
   const userName = profile?.name ?? '용사'
 
-  // 해당 주차 완료 퀘스트 조회
+  // 해당 주차 완료 퀘스트 조회 (quests 조인)
+  type CompletionRow = {
+    completed_at: string
+    quests: { title: string; grade: string; stat_type: string } | null
+  }
+
   const { data: completions } = await supabase
     .from('completions')
-    .select('quest_id, title, grade, stat_type, completed_at')
+    .select('completed_at, quests(title, grade, stat_type)')
     .eq('user_id', user.id)
-    .eq('week_number', week_number)
+    .eq('week_number', week_number) as { data: CompletionRow[] | null; error: unknown }
 
-  const completionList = (completions ?? []) as Array<{
-    title: string
-    grade: 'daily' | 'weekly' | 'main'
-    stat_type: 'strength' | 'intelligence' | 'charisma'
-    completed_at: string
-  }>
+  const completionList = (completions ?? [])
+    .filter((c) => c.quests !== null)
+    .map((c) => ({
+      title:        c.quests!.title,
+      grade:        c.quests!.grade as 'daily' | 'weekly' | 'main',
+      stat_type:    c.quests!.stat_type as 'strength' | 'intelligence' | 'charisma',
+      completed_at: c.completed_at,
+    }))
 
   const { systemPrompt, userMessage } = buildCinematicPrompt(
     userName,
