@@ -18,26 +18,19 @@ vi.mock('@/lib/supabase-server', () => ({
   }),
 }))
 
-// Mock Anthropic SDK — emulate the event-emitter surface used in the route
+// Mock Anthropic SDK — async-iterable stream of SSE events
 vi.mock('@/lib/anthropic', () => ({
   DEFAULT_MODEL: 'claude-sonnet-4-6',
   createAnthropicClient: () => ({
     messages: {
-      stream: vi.fn(() => {
-        const listeners: Record<string, ((v: unknown) => void)[]> = {}
-        const api = {
-          on(event: string, cb: (v: unknown) => void) {
-            ;(listeners[event] ??= []).push(cb)
-            return api
-          },
-          async finalMessage() {
-            // Fire a fake text delta, then resolve
-            for (const cb of listeners['text'] ?? []) cb('안녕하세요, 용사여!')
-            return { content: [{ type: 'text', text: '안녕하세요, 용사여!' }] }
-          },
-        }
-        return api
-      }),
+      stream: vi.fn(() => ({
+        async *[Symbol.asyncIterator]() {
+          yield {
+            type: 'content_block_delta',
+            delta: { type: 'text_delta', text: '안녕하세요, 용사여!' },
+          }
+        },
+      })),
     },
   }),
 }))

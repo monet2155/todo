@@ -62,8 +62,6 @@ export async function POST(request: Request): Promise<Response> {
     async start(controller) {
       const encoder = new TextEncoder()
       try {
-        // System prompt is stable per NPC type → cache it.
-        // User message is volatile (quests/stats change) → no cache_control.
         const claudeStream = anthropic.messages.stream({
           model: DEFAULT_MODEL,
           max_tokens: 1024,
@@ -77,15 +75,22 @@ export async function POST(request: Request): Promise<Response> {
           messages: [{ role: 'user', content: userMessage }],
         })
 
-        claudeStream.on('text', (delta) => {
-          controller.enqueue(
-            encoder.encode(`data: ${JSON.stringify({ text: delta })}\n\n`),
-          )
-        })
+        for await (const event of claudeStream) {
+          if (
+            event.type === 'content_block_delta' &&
+            event.delta.type === 'text_delta'
+          ) {
+            controller.enqueue(
+              encoder.encode(
+                `data: ${JSON.stringify({ text: event.delta.text })}\n\n`,
+              ),
+            )
+          }
+        }
 
-        await claudeStream.finalMessage()
         controller.enqueue(encoder.encode('data: [DONE]\n\n'))
       } catch (err) {
+        console.error('[briefing] stream error:', err)
         const message = err instanceof Error ? err.message : 'stream error'
         controller.enqueue(
           encoder.encode(`data: ${JSON.stringify({ error: message })}\n\n`),
