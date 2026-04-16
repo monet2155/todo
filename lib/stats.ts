@@ -48,3 +48,42 @@ export async function applyStatGain(
     throw new Error(`Failed to update stats: ${upsertError.message}`)
   }
 }
+
+export function getStatPercent(value: number, max: number = 100): number {
+  if (value <= 0) return 0
+  return Math.min(Math.round((value / max) * 100), 100)
+}
+
+export function calculateStreak(completionDates: string[], now: Date = new Date()): number {
+  if (completionDates.length === 0) return 0
+
+  // Deduplicate and sort dates descending
+  const uniqueDates = [...new Set(completionDates.map((d) => d.slice(0, 10)))].sort().reverse()
+
+  const toDay = (dateStr: string) => {
+    const [y, m, d] = dateStr.split('-').map(Number)
+    return new Date(y, m - 1, d).getTime()
+  }
+
+  const todayMs = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+  const ONE_DAY = 86_400_000
+
+  // Streak must start from today or yesterday
+  const mostRecent = toDay(uniqueDates[0])
+  if (mostRecent < todayMs - ONE_DAY) return 0
+
+  let streak = 0
+  let expected = mostRecent
+
+  for (const dateStr of uniqueDates) {
+    const ms = toDay(dateStr)
+    if (ms === expected) {
+      streak++
+      expected -= ONE_DAY
+    } else if (ms < expected) {
+      break
+    }
+  }
+
+  return streak
+}

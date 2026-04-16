@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { calculateXP, applyStatGain } from '@/lib/stats'
+import { calculateXP, applyStatGain, getStatPercent, calculateStreak } from '@/lib/stats'
 import type { QuestGrade, StatType } from '@/types'
 
 // ── calculateXP ───────────────────────────────────────────────
@@ -83,5 +83,69 @@ describe('applyStatGain', () => {
       const client = makeFakeClient({ strength: 0, intelligence: 0, charisma: 0 })
       await expect(applyStatGain(client, 'u', statType, 10)).resolves.toBeUndefined()
     }
+  })
+})
+
+// ── getStatPercent ────────────────────────────────────────────
+
+describe('getStatPercent', () => {
+  it('returns 0 when value is 0', () => {
+    expect(getStatPercent(0)).toBe(0)
+  })
+
+  it('returns 100 when value equals max', () => {
+    expect(getStatPercent(100)).toBe(100)
+  })
+
+  it('returns 50 when value is half of max', () => {
+    expect(getStatPercent(50)).toBe(50)
+  })
+
+  it('caps at 100 when value exceeds max', () => {
+    expect(getStatPercent(150)).toBe(100)
+  })
+
+  it('respects custom max', () => {
+    expect(getStatPercent(25, 200)).toBe(13)
+  })
+
+  it('returns 0 for negative value', () => {
+    expect(getStatPercent(-10)).toBe(0)
+  })
+})
+
+// ── calculateStreak ───────────────────────────────────────────
+
+describe('calculateStreak', () => {
+  it('returns 0 for empty completions', () => {
+    expect(calculateStreak([], new Date('2026-04-16'))).toBe(0)
+  })
+
+  it('returns 1 when only today has a completion', () => {
+    expect(calculateStreak(['2026-04-16'], new Date('2026-04-16'))).toBe(1)
+  })
+
+  it('counts consecutive days ending today', () => {
+    const dates = ['2026-04-14', '2026-04-15', '2026-04-16']
+    expect(calculateStreak(dates, new Date('2026-04-16'))).toBe(3)
+  })
+
+  it('breaks streak on gap', () => {
+    const dates = ['2026-04-12', '2026-04-14', '2026-04-15', '2026-04-16']
+    expect(calculateStreak(dates, new Date('2026-04-16'))).toBe(3)
+  })
+
+  it('returns 0 when most recent completion is not today or yesterday', () => {
+    expect(calculateStreak(['2026-04-10'], new Date('2026-04-16'))).toBe(0)
+  })
+
+  it('handles duplicate dates on same day', () => {
+    const dates = ['2026-04-15', '2026-04-15', '2026-04-16', '2026-04-16']
+    expect(calculateStreak(dates, new Date('2026-04-16'))).toBe(2)
+  })
+
+  it('counts streak starting from yesterday when today has no completion', () => {
+    const dates = ['2026-04-13', '2026-04-14', '2026-04-15']
+    expect(calculateStreak(dates, new Date('2026-04-16'))).toBe(3)
   })
 })

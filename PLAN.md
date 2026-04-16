@@ -451,6 +451,8 @@ Phase 3:  T10(스파이크) → T11 → T12 → T13
 
 ## Open Questions
 
-- [ ] BGM 소스: 무료 라이선스 중세 오케스트라 트랙 선정 필요 (Pixabay 등)
-- [ ] NPC 초상화 이미지: AI 생성 일러스트 3종 제작 필요 (Midjourney/DALL-E)
-- [ ] Vercel 백그라운드 작업: Edge Runtime 제한으로 인해 Vercel Pro의 Background Functions 또는 별도 서버 필요할 수 있음
+- [ ] BGM 소스: 미결 — 추후 논의
+- [ ] NPC 초상화 이미지: 관리자 콘솔에서 AI 생성 이미지 추가/삭제로 관리 — 관리자 콘솔 구축 후 처리
+- [x] Vercel 백그라운드 작업: **Vercel Pro Background Functions** 사용 결정 (`maxDuration = 900`, 별도 서버 불필요)
+- [x] Runway fallback 여부: **fallback 없음** — 요금제/상품 가격 조정으로 Runway 퀄리티 유지
+- [x] 영상 생성 실패 알림: **인앱 토스트 + 재시도 버튼**
