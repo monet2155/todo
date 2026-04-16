@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
-import { createOpenAIClient } from '@/lib/openai'
+import { createAnthropicClient, DEFAULT_MODEL } from '@/lib/anthropic'
 import { buildCinematicPrompt } from '@/lib/prompts/cinematic'
 import type { RecapScript } from '@/types'
 
-// POST /api/recap/script
+// POST /api/recap/script — generates cinematic scenes[] JSON via Claude
 export async function POST(request: Request) {
   const supabase = createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -14,10 +14,12 @@ export async function POST(request: Request) {
   const { week_number, year } = (body ?? {}) as { week_number?: unknown; year?: unknown }
 
   if (typeof week_number !== 'number' || typeof year !== 'number') {
-    return NextResponse.json({ error: 'week_number and year are required numbers' }, { status: 400 })
+    return NextResponse.json(
+      { error: 'week_number and year are required numbers' },
+      { status: 400 },
+    )
   }
 
-  // 유저 이름 조회
   const { data: profile } = await supabase
     .from('profiles')
     .select('name')
@@ -26,7 +28,6 @@ export async function POST(request: Request) {
 
   const userName = profile?.name ?? '용사'
 
-  // 해당 주차 완료 퀘스트 조회 (quests 조인)
   type CompletionRow = {
     completed_at: string
     quests: { title: string; grade: string; stat_type: string } | null
@@ -55,23 +56,38 @@ export async function POST(request: Request) {
     year,
   )
 
-  const openai = createOpenAIClient()
-  const completion = await openai.chat.completions.create({
-    model: 'gpt-4o',
-    response_format: { type: 'json_object' },
-    messages: [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userMessage },
+  const anthropic = createAnthropicClient()
+  const message = await anthropic.messages.create({
+    model: DEFAULT_MODEL,
+    max_tokens: 2048,
+    // System prompt includes the JSON schema & rules — stable across users → cache.
+    system: [
+      {
+        type: 'text',
+        text: systemPrompt,
+        cache_control: { type: 'ephemeral' },
+      },
     ],
+    messages: [{ role: 'user', content: userMessage }],
   })
 
-  const raw = completion.choices[0]?.message?.content ?? '{}'
+  const raw = message.content
+    .filter((b) => b.type === 'text')
+    .map((b) => b.text)
+    .join('')
+    .trim()
+
+  // Claude may wrap JSON in ```json ... ``` fences — strip if present
+  const cleaned = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '')
 
   let script: RecapScript
   try {
-    script = JSON.parse(raw) as RecapScript
+    script = JSON.parse(cleaned) as RecapScript
   } catch {
-    return NextResponse.json({ error: 'failed to parse script from AI' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'failed to parse script from AI', raw: cleaned.slice(0, 200) },
+      { status: 500 },
+    )
   }
 
   if (!Array.isArray(script.scenes) || script.scenes.length === 0) {

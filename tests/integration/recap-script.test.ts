@@ -5,8 +5,12 @@ const state: FakeState = { user: { id: 'user-1' }, completions: [], recaps: [] }
 
 function resetState() {
   state.user = { id: 'user-1' }
+  // Supabase select('completed_at, quests(...)') returns nested shape
   state.completions = [
-    { quest_id: 'q1', title: '운동', grade: 'daily', stat_type: 'strength', completed_at: '2026-04-14T10:00:00Z' },
+    {
+      completed_at: '2026-04-14T10:00:00Z',
+      quests: { title: '운동', grade: 'daily', stat_type: 'strength' },
+    },
   ]
   state.recaps = []
 }
@@ -26,7 +30,6 @@ vi.mock('@/lib/supabase-server', () => ({
               return Promise.resolve()
             },
           }),
-          // for profiles
           single: async () => ({ data: { name: '홍길동' }, error: null }),
         }),
       }),
@@ -39,23 +42,24 @@ vi.mock('@/lib/supabase-server', () => ({
   }),
 }))
 
-vi.mock('@/lib/openai', () => ({
-  createOpenAIClient: () => ({
-    chat: {
-      completions: {
-        create: vi.fn(async () => ({
-          choices: [{
-            message: {
-              content: JSON.stringify({
-                title: 'CHRONICLES OF 홍길동',
-                scenes: [
-                  { narration: '전설이 시작되다', visual_prompt: 'epic dawn', duration: 4 },
-                ],
-              }),
-            },
-          }],
-        })),
-      },
+// Mock Anthropic — messages.create returns content blocks
+vi.mock('@/lib/anthropic', () => ({
+  DEFAULT_MODEL: 'claude-sonnet-4-6',
+  createAnthropicClient: () => ({
+    messages: {
+      create: vi.fn(async () => ({
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify({
+              title: 'CHRONICLES OF 홍길동',
+              scenes: [
+                { narration: '전설이 시작되다', visual_prompt: 'epic dawn', duration: 4 },
+              ],
+            }),
+          },
+        ],
+      })),
     },
   }),
 }))

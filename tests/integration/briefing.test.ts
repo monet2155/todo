@@ -1,7 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-// ── Mocks ─────────────────────────────────────────────────────
-
 type FakeState = {
   user: { id: string } | null
 }
@@ -20,17 +18,26 @@ vi.mock('@/lib/supabase-server', () => ({
   }),
 }))
 
-// Mock OpenAI so tests don't hit the network
-vi.mock('@/lib/openai', () => ({
-  createOpenAIClient: () => ({
-    chat: {
-      completions: {
-        create: vi.fn(async () => ({
-          [Symbol.asyncIterator]: async function* () {
-            yield { choices: [{ delta: { content: '안녕하세요, 용사여!' } }] }
+// Mock Anthropic SDK — emulate the event-emitter surface used in the route
+vi.mock('@/lib/anthropic', () => ({
+  DEFAULT_MODEL: 'claude-sonnet-4-6',
+  createAnthropicClient: () => ({
+    messages: {
+      stream: vi.fn(() => {
+        const listeners: Record<string, ((v: unknown) => void)[]> = {}
+        const api = {
+          on(event: string, cb: (v: unknown) => void) {
+            ;(listeners[event] ??= []).push(cb)
+            return api
           },
-        })),
-      },
+          async finalMessage() {
+            // Fire a fake text delta, then resolve
+            for (const cb of listeners['text'] ?? []) cb('안녕하세요, 용사여!')
+            return { content: [{ type: 'text', text: '안녕하세요, 용사여!' }] }
+          },
+        }
+        return api
+      }),
     },
   }),
 }))
