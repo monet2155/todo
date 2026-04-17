@@ -218,16 +218,10 @@ export default async function RecapPage() {
                 <Link
                   key={recap.id}
                   href={`/recap/${recap.id}`}
-                  className="flex items-center justify-between px-4 py-3.5 transition-all"
+                  className="recap-history-link flex items-center justify-between px-4 py-3.5 transition-all"
                   style={{
                     background: 'var(--panel)',
                     border: '1px solid var(--border)',
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLAnchorElement).style.borderColor = 'color-mix(in srgb, var(--gold) 40%, transparent)'
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--border)'
                   }}
                 >
                   <div>

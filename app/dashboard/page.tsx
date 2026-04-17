@@ -380,7 +380,6 @@ export default async function DashboardPage() {
                   paddingBottom: '1px',
                   whiteSpace: 'nowrap',
                 }}
-                onMouseEnter={() => {}}
               >
                 브리핑 →
               </Link>

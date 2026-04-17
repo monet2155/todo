@@ -262,6 +262,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   100% { opacity: 0; max-height: 0; margin-bottom: 0; padding: 0; overflow: hidden; }
 }
 
+/* ── Recap history link hover ────────────────────── */
+.recap-history-link:hover {
+  border-color: color-mix(in srgb, var(--gold) 40%, transparent) !important;
+}
+
 /* ── Reduced motion ──────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
