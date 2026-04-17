@@ -1,12 +1,9 @@
 import { requireUser, getProfile } from '@/lib/auth'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
-import { calculateStreak } from '@/lib/stats'
 import { getNPCConfig } from '@/lib/npc-config'
-import CharacterSheet from '@/components/character-sheet/CharacterSheet'
 import Link from 'next/link'
 import LogoutButton from '@/app/dashboard/LogoutButton'
 
-type ActivePage = 'dashboard' | 'briefing' | 'recap'
+type ActivePage = 'dashboard' | 'briefing' | 'recap' | 'stats'
 
 type Props = {
   activePage: ActivePage
@@ -60,16 +57,7 @@ export default async function AppSidebar({ activePage }: Props) {
 
   if (!profile) return null
 
-  const supabase = createServerSupabaseClient()
-  const [{ data: stats }, { data: completions }] = await Promise.all([
-    supabase.from('stats').select('*').eq('user_id', user.id).single(),
-    supabase.from('completions').select('completed_at').eq('user_id', user.id),
-  ])
-
-  const totalCompleted  = completions?.length ?? 0
-  const completionDates = (completions ?? []).map((c) => c.completed_at.slice(0, 10))
-  const streakDays      = calculateStreak(completionDates)
-  const npcCfg          = getNPCConfig(profile.npc_type)
+  const npcCfg = getNPCConfig(profile.npc_type)
 
   return (
     <aside
@@ -126,31 +114,13 @@ export default async function AppSidebar({ activePage }: Props) {
         style={{ background: 'linear-gradient(90deg, var(--gold), transparent)', opacity: 0.35 }}
       />
 
-      {/* Navigation — always above the fold */}
-      <nav className="px-3 py-4 space-y-0.5">
+      {/* Navigation */}
+      <nav className="px-3 py-4 space-y-0.5 flex-1">
         <NavLink href="/dashboard" label="퀘스트 보드" active={activePage === 'dashboard'} />
         <NavLink href="/briefing"  label="브리핑" sub={npcCfg.label} active={activePage === 'briefing'} />
         <NavLink href="/recap"     label="회고"  active={activePage === 'recap'} />
+        <NavLink href="/stats"     label="스탯"  active={activePage === 'stats'} />
       </nav>
-
-      {/* Divider */}
-      <div
-        className="mx-6 h-px"
-        style={{ background: 'linear-gradient(90deg, var(--border), transparent)', opacity: 0.5 }}
-      />
-
-      {/* Character sheet — secondary, below nav */}
-      <div className="px-5 py-5 flex-1 overflow-hidden">
-        {stats ? (
-          <CharacterSheet
-            stats={stats}
-            totalCompleted={totalCompleted}
-            streakDays={streakDays}
-          />
-        ) : (
-          <div className="h-48 skeleton" />
-        )}
-      </div>
 
       {/* Logout */}
       <div

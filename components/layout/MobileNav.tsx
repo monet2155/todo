@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-type ActivePage = 'dashboard' | 'briefing' | 'recap'
+type ActivePage = 'dashboard' | 'briefing' | 'recap' | 'stats'
 
 type Props = {
   activePage: ActivePage
@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { page: 'dashboard' as const, href: '/dashboard', label: '퀘스트' },
   { page: 'briefing'  as const, href: '/briefing',  label: '브리핑' },
   { page: 'recap'     as const, href: '/recap',     label: '회고'   },
+  { page: 'stats'     as const, href: '/stats',     label: '스탯'   },
 ]
 
 export default function MobileNav({ activePage, npcLabel }: Props) {
