@@ -10,9 +10,9 @@ type Props = {
 }
 
 export default function RecapTrigger({ weekNumber, year, existingRecapId }: Props) {
-  const router = useRouter()
+  const router  = useRouter()
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [error,   setError]   = useState('')
 
   async function handleCreate() {
     setLoading(true)
@@ -22,7 +22,6 @@ export default function RecapTrigger({ weekNumber, year, existingRecapId }: Prop
       let recapId = existingRecapId
 
       if (!recapId) {
-        // 새 recap 레코드 생성 (스크립트 먼저)
         const scriptRes = await fetch('/api/recap/script', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
@@ -34,10 +33,8 @@ export default function RecapTrigger({ weekNumber, year, existingRecapId }: Prop
           throw new Error(err)
         }
 
-        const script = await scriptRes.json()
-
-        // recap row 생성
-        const recapRes = await fetch('/api/recap', {
+        const script    = await scriptRes.json()
+        const recapRes  = await fetch('/api/recap', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({ week_number: weekNumber, year, script }),
@@ -48,7 +45,6 @@ export default function RecapTrigger({ weekNumber, year, existingRecapId }: Prop
         recapId = recap.id
       }
 
-      // 영상 생성 트리거
       const genRes = await fetch('/api/recap/generate', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
@@ -70,11 +66,16 @@ export default function RecapTrigger({ weekNumber, year, existingRecapId }: Prop
       <button
         onClick={handleCreate}
         disabled={loading}
-        className="px-5 py-2.5 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 disabled:opacity-40 transition-colors"
+        className="btn-primary"
+        style={{ padding: '9px 24px' }}
       >
         {loading ? '전설을 소환하는 중...' : '이번 주 전설 만들기'}
       </button>
-      {error && <p className="text-red-400 text-sm">{error}</p>}
+      {error && (
+        <p style={{ fontFamily: 'var(--body-kr)', fontSize: '0.8rem', color: '#9B2D20' }}>
+          {error}
+        </p>
+      )}
     </div>
   )
 }

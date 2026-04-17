@@ -2,195 +2,270 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Color Tokens ──────────────────────────────── */
+/* ── CSS Custom Properties ───────────────────────── */
 :root {
-  --heuk:      #0F0E0C;
-  --paulownia: #1C1A18;
-  --ebony:     #252220;
-  --ebony-plus:#2C2927;
-  --patina:    #2A4A3E;
-  --hwang:     #D4A017;
-  --gilded:    #F5C518;
-  --jeok:      #C0392B;
-  --cheong:    #1A5F7A;
-  --baek:      #F0EAD6;
-  --violet:    #6B3FA0;
-  --ember:     #E07B39;
+  --lacquer:    #0E0C09;
+  --panel:      #171410;
+  --card:       #201C18;
+  --card-hi:    #281E19;
+  --modal:      #2D2621;
+
+  --gold:       #B8860B;
+  --gold-hi:    #D4A827;
+  --crimson:    #9B2D20;
+  --celadon:    #2E6B5A;
+  --violet:     #5C3580;
+  --ember:      #C0682B;
+
+  --border:     #3A5E4E;
+  --parchment:  #E8DBBE;
+  --ink:        #8B7B60;
+  --ink-dim:    #4A4035;
+
+  /* font shorthand */
+  --display:  var(--font-cormorant), Georgia, serif;
+  --body-kr:  var(--font-hahmlet), var(--font-gowun), Georgia, serif;
+  --body-en:  var(--font-lora), Georgia, serif;
+  --mono:     var(--font-mono), ui-monospace, monospace;
+
+  /* V1 compat aliases */
+  --heuk:      #0E0C09;
+  --paulownia: #171410;
+  --ebony:     #201C18;
+  --ebony-plus:#2D2621;
+  --patina:    #3A5E4E;
+  --hwang:     #B8860B;
+  --gilded:    #D4A827;
+  --jeok:      #9B2D20;
+  --cheong:    #2E6B5A;
+  --baek:      #E8DBBE;
 }
 
-/* ── Base ──────────────────────────────────────── */
+/* ── Base ────────────────────────────────────────── */
 html {
-  background-color: var(--heuk);
+  background-color: var(--lacquer);
 }
 
 body {
-  background-color: var(--heuk);
-  color: var(--baek);
+  background-color: var(--lacquer);
+  color: var(--parchment);
   min-height: 100vh;
   position: relative;
+  font-family: var(--body-kr);
 }
 
-/* ── Background Layer 1: Noise Grain ──────────── */
+/* ── Background: Aged Paper Grain ────────────────── */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.04;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 200px 200px;
+  opacity: 0.045;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
 }
 
-/* ── Background Layer 2: 창살 Lattice ─────────── */
+/* ── Background: Diamond Lattice (창호 변형) ─────── */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.035;
+  opacity: 0.025;
   background-image:
-    linear-gradient(var(--hwang) 1px, transparent 1px),
-    linear-gradient(90deg, var(--hwang) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 100%);
+    linear-gradient(45deg, var(--gold) 1px, transparent 1px),
+    linear-gradient(-45deg, var(--gold) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%);
 }
 
-/* ── All content above background layers ────── */
+/* ── All content above background layers ─────────── */
 body > * {
   position: relative;
   z-index: 1;
 }
 
-/* ── Directional Border Mixin ─────────────────── */
-.border-candle {
-  border-top:    1px solid #2A4A3E;
-  border-left:   1px solid #243D33;
-  border-right:  1px solid #1A2E27;
-  border-bottom: 1px solid #151F1B;
-}
-
-.border-candle-active {
-  border-top:    1px solid #D4A01760;
-  border-left:   1px solid #D4A01740;
-  border-right:  1px solid #1A2E27;
-  border-bottom: 1px solid #151F1B;
-}
-
-/* ── Dancheong Stripe ─────────────────────────── */
-.dancheong-stripe {
-  height: 3px;
-  flex-shrink: 0;
-  background: repeating-linear-gradient(
-    90deg,
-    #D4A017 0px,  #D4A017 6px,
-    #C0392B 6px,  #C0392B 12px,
-    #1A5F7A 12px, #1A5F7A 18px,
-    #6B3FA0 18px, #6B3FA0 24px,
-    #2A4A3E 24px, #2A4A3E 30px
-  );
-}
-
-/* ── Hologram Stat Panel ──────────────────────── */
-.stat-panel {
-  background: rgba(15, 14, 12, 0.80);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  clip-path: polygon(
-    0 14px, 14px 0,
-    calc(100% - 14px) 0, 100% 14px,
-    100% calc(100% - 14px), calc(100% - 14px) 100%,
-    14px 100%, 0 calc(100% - 14px)
-  );
-  position: relative;
-}
-
-.stat-panel::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent 0px,
-    transparent 3px,
-    rgba(0, 0, 0, 0.06) 3px,
-    rgba(0, 0, 0, 0.06) 4px
-  );
-}
-
-/* ── Skeleton Shimmer ─────────────────────────── */
-@keyframes dancheong-shimmer {
-  0%   { background-position: -400px 0; }
-  100% { background-position: 400px 0; }
-}
-
+/* ── Skeleton Shimmer ────────────────────────────── */
 .skeleton {
   background: linear-gradient(
     90deg,
-    #1C1A18 0%,
-    #2A4A3E30 25%,
-    #D4A01720 45%,
-    #2A4A3E30 65%,
-    #1C1A18 100%
+    var(--panel) 0%,
+    #3A5E4E20 30%,
+    #B8860B15 50%,
+    #3A5E4E20 70%,
+    var(--panel) 100%
   );
   background-size: 800px 100%;
-  animation: dancheong-shimmer 1.8s infinite linear;
+  animation: shimmer 1.8s infinite linear;
+  border-radius: 1px;
+}
+
+/* ── Input / select base ─────────────────────────── */
+.field-base {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--parchment);
+  font-family: var(--body-kr);
+  font-size: 0.9rem;
+  padding: 10px 14px;
+  width: 100%;
+  outline: none;
+  transition: border-color 150ms, box-shadow 150ms;
+}
+
+.field-base:focus {
+  border-color: color-mix(in srgb, var(--gold) 60%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 8%, transparent);
+}
+
+/* ── Ornament frame (replaces stat-panel clip-path) ─ */
+.ornament-frame {
+  position: relative;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--lacquer) 60%, transparent);
+}
+
+/* ── Binding Line (책 제본선 — 세로 금선) ────────── */
+.binding-line {
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    var(--gold) 15%,
+    var(--gold) 85%,
+    transparent 100%
+  );
+  opacity: 0.35;
+}
+
+/* ── Running Header ──────────────────────────────── */
+.running-header {
+  font-family: var(--display);
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+/* ── Section Label ───────────────────────────────── */
+.section-label {
+  font-family: var(--display);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+/* ── Primary Button ──────────────────────────────── */
+.btn-primary {
+  font-family: var(--display);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  color: var(--gold);
+  border: 1px solid color-mix(in srgb, var(--gold) 50%, transparent);
+  background: transparent;
+  padding: 7px 20px;
+  cursor: pointer;
+  transition: background 150ms, color 150ms, border-color 150ms;
+}
+
+.btn-primary:hover {
+  background: var(--gold);
+  color: var(--lacquer);
+  border-color: var(--gold);
+}
+
+.btn-primary:active {
+  transform: scale(0.97);
+}
+
+.btn-primary:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ── Ghost Button ───────────────────────────────── */
+.btn-ghost {
+  font-family: var(--display);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  color: var(--ink);
+  border: 1px solid var(--border);
+  background: transparent;
+  padding: 7px 20px;
+  cursor: pointer;
+  transition: border-color 150ms, color 150ms;
+}
+
+.btn-ghost:hover {
+  border-color: color-mix(in srgb, var(--gold) 40%, transparent);
+  color: color-mix(in srgb, var(--parchment) 80%, transparent);
+}
+
+/* ── V1 compat ───────────────────────────────────── */
+.dancheong-stripe {
+  height: 2px;
+  flex-shrink: 0;
+  background: linear-gradient(90deg,
+    var(--gold) 0%, var(--gold) 25%,
+    var(--celadon) 25%, var(--celadon) 50%,
+    var(--crimson) 50%, var(--crimson) 75%,
+    var(--violet) 75%, var(--violet) 100%
+  );
+  opacity: 0.5;
+}
+
+.stat-panel {
+  background: color-mix(in srgb, var(--lacquer) 80%, transparent);
+  position: relative;
+}
+
+.border-candle {
+  border: 1px solid var(--border);
+}
+
+.border-candle-active {
+  border: 1px solid color-mix(in srgb, var(--gold) 40%, transparent);
+}
+
+/* ── Scrollbar ───────────────────────────────────── */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: var(--lacquer); }
+::-webkit-scrollbar-thumb {
+  background: var(--border);
   border-radius: 2px;
 }
-
-/* ── Quest Complete Animations ────────────────── */
-@keyframes seal-stamp {
-  0%   { opacity: 0; transform: scale(1.6); }
-  30%  { opacity: 1; transform: scale(0.95); }
-  70%  { opacity: 1; transform: scale(1); }
-  100% { opacity: 0; transform: scale(1); }
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--celadon) 80%, white);
 }
 
-@keyframes card-collapse {
-  0%   { opacity: 1; max-height: 200px; transform: scale(1); }
-  40%  { opacity: 0.3; max-height: 200px; transform: scale(0.98); }
-  100% { opacity: 0; max-height: 0; transform: scale(0.96); margin-bottom: 0; padding: 0; }
-}
-
-@keyframes tip-pulse {
-  0%, 100% { opacity: 0.9; }
-  50%       { opacity: 1; filter: brightness(1.4); }
-}
-
-@keyframes modal-enter {
-  from { opacity: 0; transform: scale(0.94) translateY(8px); }
-  to   { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-@keyframes fade-up {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes xp-popup {
-  0%   { opacity: 0; transform: translateY(10px) scale(0.9); }
-  20%  { opacity: 1; transform: translateY(0) scale(1.1); }
-  100% { opacity: 0; transform: translateY(-40px) scale(1); }
-}
-
-/* ── Scrollbar ────────────────────────────────── */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: var(--heuk); }
-::-webkit-scrollbar-thumb { background: var(--patina); border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: #3A6A55; }
-
-/* ── Focus ring ───────────────────────────────── */
+/* ── Focus ring ──────────────────────────────────── */
 :focus-visible {
-  outline: 1px solid #D4A01780;
+  outline: 1px solid color-mix(in srgb, var(--gold) 70%, transparent);
   outline-offset: 2px;
-  box-shadow: 0 0 0 3px #D4A01715;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 10%, transparent);
 }
 
-/* ── Date input color fix ─────────────────────── */
+/* ── Date input ──────────────────────────────────── */
 input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(0.6) sepia(1) saturate(2) hue-rotate(5deg);
+  filter: invert(0.5) sepia(1) saturate(1.5) hue-rotate(10deg);
   cursor: pointer;
+}
+
+/* ── Quest card collapse animation ───────────────── */
+@keyframes card-collapse {
+  0%   { opacity: 1; max-height: 200px; }
+  40%  { opacity: 0.3; max-height: 200px; }
+  100% { opacity: 0; max-height: 0; margin-bottom: 0; padding: 0; overflow: hidden; }
+}
+
+/* ── Reduced motion ──────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

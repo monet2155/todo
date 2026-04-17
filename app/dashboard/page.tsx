@@ -8,23 +8,17 @@ import { calculateStreak } from '@/lib/stats'
 import LogoutButton from './LogoutButton'
 import type { NPCType, Stats } from '@/types'
 
-// ── NPC Banner message (template-based, no AI) ──────────────────────
-const NPC_ICON: Record<NPCType, string> = {
-  knight: '⚔',
-  rival:  '🗡',
-  sage:   '📜',
-}
-
+// ── NPC config ───────────────────────────────────────────────────────
 const NPC_NAME: Record<NPCType, string> = {
   knight: '기사단장',
   rival:  '라이벌',
   sage:   '현자',
 }
 
-const NPC_GLOW: Record<NPCType, string> = {
-  knight: '#D4A017',
-  rival:  '#C0392B',
-  sage:   '#1A5F7A',
+const NPC_COLOR: Record<NPCType, string> = {
+  knight: '#B8860B',
+  rival:  '#9B2D20',
+  sage:   '#2E6B5A',
 }
 
 function getBannerMessage(
@@ -50,41 +44,57 @@ function getBannerMessage(
   return messages[npcType]
 }
 
-// ── Nav item ────────────────────────────────────────────────────────
-function NavItem({
+// ── Nav link ─────────────────────────────────────────────────────────
+function NavLink({
   href,
-  icon,
   label,
+  sub,
   active,
 }: {
   href: string
-  icon: string
   label: string
+  sub?: string
   active?: boolean
 }) {
   return (
     <Link
       href={href}
-      className="flex items-center gap-3 px-3 py-2.5 rounded-sm transition-colors group relative"
+      className="relative flex items-baseline gap-2 py-2 px-3 transition-colors group"
       style={{
-        color: active ? '#D4A017' : '#6A6560',
-        background: active ? '#D4A01710' : 'transparent',
+        color: active ? 'var(--parchment)' : 'var(--ink)',
       }}
     >
-      {/* Active indicator */}
       {active && (
         <div
-          className="absolute left-0 top-1 bottom-1 w-[2px] rounded-full"
-          style={{ background: '#D4A017', boxShadow: '0 0 6px #D4A01780' }}
+          className="absolute left-0 top-1 bottom-1 w-[1.5px]"
+          style={{ background: 'var(--gold)' }}
         />
       )}
-      <span className="text-base leading-none">{icon}</span>
-      <span className="font-cinzel text-[0.78rem] tracking-wider font-bold">{label}</span>
+      <span
+        style={{
+          fontFamily: 'var(--body-kr)',
+          fontSize: '0.875rem',
+        }}
+      >
+        {label}
+      </span>
+      {sub && (
+        <span
+          style={{
+            fontFamily: 'var(--display)',
+            fontSize: '0.58rem',
+            letterSpacing: '0.08em',
+            color: active ? 'var(--gold)' : 'var(--ink-dim)',
+          }}
+        >
+          {sub}
+        </span>
+      )}
     </Link>
   )
 }
 
-// ── Main page ────────────────────────────────────────────────────────
+// ── Main ─────────────────────────────────────────────────────────────
 export default async function DashboardPage() {
   const user    = await requireUser()
   const profile = await getProfile(user.id)
@@ -119,50 +129,69 @@ export default async function DashboardPage() {
     activeQuestCount,
   )
 
-  const npcGlow = NPC_GLOW[profile.npc_type]
+  const npcColor = NPC_COLOR[profile.npc_type]
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex" style={{ background: 'var(--lacquer)' }}>
 
-      {/* ── Sidebar (desktop only) ──────────────── */}
+      {/* ── LEFT PAGE — Character & Navigation (desktop only) ── */}
       <aside
-        className="hidden lg:flex flex-col fixed left-0 top-0 h-full w-60 z-20"
-        style={{
-          background: '#141210',
-          borderRight: '1px solid #1A2E27',
-        }}
+        className="hidden lg:flex flex-col fixed left-0 top-0 h-full w-[240px] z-20"
+        style={{ background: 'var(--panel)' }}
       >
+        {/* Binding line (right edge) */}
+        <div
+          className="binding-line absolute right-0 top-0 bottom-0"
+          style={{ zIndex: 1 }}
+        />
+
         {/* Brand */}
-        <div className="px-5 pt-6 pb-5">
+        <div className="px-6 pt-7 pb-5">
+          <div className="flex items-baseline gap-2 mb-1">
+            <h1
+              style={{
+                fontFamily: 'var(--body-kr)',
+                fontSize: '1.5rem',
+                fontWeight: 700,
+                color: 'var(--parchment)',
+                letterSpacing: '-0.01em',
+                lineHeight: 1,
+              }}
+            >
+              얼담
+            </h1>
+            <span
+              style={{
+                fontFamily: 'var(--display)',
+                fontSize: '0.58rem',
+                letterSpacing: '0.1em',
+                color: 'var(--gold)',
+                fontWeight: 400,
+              }}
+            >
+              {profile.name}
+            </span>
+          </div>
           <p
-            className="font-cinzel font-bold leading-tight"
-            style={{ color: '#D4A017', fontSize: '0.9rem', letterSpacing: '0.08em' }}
+            style={{
+              fontFamily: 'var(--body-kr)',
+              fontSize: '0.72rem',
+              color: 'var(--ink)',
+              lineHeight: 1.5,
+            }}
           >
-            ◈ Chronicles
-          </p>
-          <p
-            className="font-hahmlet font-bold"
-            style={{ color: '#F0EAD6', fontSize: '1.1rem' }}
-          >
-            of [{profile.name}]
+            당신의 얼로 쓰는 이야기
           </p>
         </div>
 
         {/* Gold divider */}
-        <div className="mx-5 h-px" style={{ background: 'linear-gradient(90deg, #D4A01740, transparent)' }} />
-
-        {/* Navigation */}
-        <nav className="flex-1 px-3 py-4 space-y-1">
-          <NavItem href="/dashboard"  icon="⚔" label="QUEST BOARD" active />
-          <NavItem href="/briefing"   icon={NPC_ICON[profile.npc_type]} label="BRIEFING" />
-          <NavItem href="/recap"      icon="🎬" label="RECAP" />
-        </nav>
-
-        {/* Divider */}
-        <div className="mx-5 h-px" style={{ background: 'linear-gradient(90deg, #2A4A3E, transparent)' }} />
+        <div
+          className="mx-6 h-px"
+          style={{ background: 'linear-gradient(90deg, var(--gold), transparent)', opacity: 0.4 }}
+        />
 
         {/* Character sheet */}
-        <div className="p-4 pb-5">
+        <div className="px-5 py-5">
           {stats ? (
             <CharacterSheet
               stats={stats}
@@ -170,103 +199,188 @@ export default async function DashboardPage() {
               streakDays={streakDays}
             />
           ) : (
-            <div className="h-48 skeleton rounded" />
+            <div className="h-52 skeleton" />
           )}
         </div>
 
+        {/* Divider */}
+        <div
+          className="mx-6 h-px"
+          style={{ background: 'linear-gradient(90deg, var(--border), transparent)', opacity: 0.5 }}
+        />
+
+        {/* Navigation */}
+        <nav className="px-3 py-4 flex-1 space-y-0.5">
+          <NavLink
+            href="/dashboard"
+            label="퀘스트 보드"
+            active
+          />
+          <NavLink
+            href="/briefing"
+            label="브리핑"
+            sub={NPC_NAME[profile.npc_type]}
+          />
+          <NavLink
+            href="/recap"
+            label="회고"
+          />
+        </nav>
+
         {/* Logout */}
-        <div className="px-5 pb-5">
+        <div className="px-6 pb-6">
           <LogoutButton />
         </div>
       </aside>
 
-      {/* ── Main content ────────────────────────── */}
-      <main className="flex-1 lg:ml-60 pb-20 lg:pb-0">
+      {/* ── RIGHT PAGE — Content ────────────────── */}
+      <main
+        className="flex-1 lg:ml-[240px]"
+        style={{ minHeight: '100vh' }}
+      >
+        {/* Running header (desktop) */}
+        <div
+          className="hidden lg:flex items-center justify-between px-8 py-3"
+          style={{
+            borderBottom: '1px solid var(--border)',
+            opacity: 0.7,
+          }}
+        >
+          <span className="running-header">얼담&nbsp;&nbsp;·&nbsp;&nbsp;퀘스트 보드</span>
+          <span className="running-header">
+            {profile.name}의 모험
+          </span>
+        </div>
 
         {/* Mobile header */}
         <header
           className="lg:hidden sticky top-0 z-10 px-4 pt-4 pb-3"
-          style={{ background: '#0F0E0C', borderBottom: '1px solid #1A2E27' }}
+          style={{
+            background: 'var(--lacquer)',
+            borderBottom: '1px solid var(--border)',
+          }}
         >
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <p
-                className="font-cinzel font-bold"
-                style={{ color: '#D4A017', fontSize: '0.85rem', letterSpacing: '0.08em' }}
-              >
-                ◈ Chronicles of [{profile.name}]
-              </p>
-            </div>
+          <div className="flex items-center justify-between mb-2.5">
+            <h1
+              style={{
+                fontFamily: 'var(--body-kr)',
+                fontSize: '1.25rem',
+                fontWeight: 700,
+                color: 'var(--parchment)',
+              }}
+            >
+              얼담
+            </h1>
             <LogoutButton />
           </div>
 
-          {/* Mobile compact stat bar */}
+          {/* Mobile compact stats */}
           {stats && (
             <div className="flex items-center gap-4">
               {[
-                { label: 'STR', value: stats.strength,     color: '#C0392B' },
-                { label: 'INT', value: stats.intelligence, color: '#1A5F7A' },
-                { label: 'CHA', value: stats.charisma,     color: '#6B3FA0' },
+                { label: 'STR', value: stats.strength,     color: '#9B2D20' },
+                { label: 'INT', value: stats.intelligence, color: '#2E6B5A' },
+                { label: 'CHA', value: stats.charisma,     color: '#5C3580' },
               ].map((s) => (
                 <div key={s.label} className="flex items-baseline gap-1">
-                  <span className="font-cinzel-deco font-bold" style={{ color: s.color, fontSize: '1.1rem' }}>
+                  <span
+                    style={{
+                      fontFamily: 'var(--mono)',
+                      fontSize: '1rem',
+                      fontWeight: 500,
+                      color: s.color,
+                      lineHeight: 1,
+                    }}
+                  >
                     {s.value}
                   </span>
-                  <span className="font-inter text-[0.55rem] tracking-wider" style={{ color: '#4A4540' }}>
+                  <span
+                    style={{
+                      fontFamily: 'var(--display)',
+                      fontSize: '0.52rem',
+                      letterSpacing: '0.1em',
+                      color: 'var(--ink-dim)',
+                    }}
+                  >
                     {s.label}
                   </span>
                 </div>
               ))}
               <div className="ml-auto flex items-baseline gap-1">
-                <span className="font-cinzel-deco font-bold" style={{ color: '#D4A017', fontSize: '1.1rem' }}>
-                  {streakDays}
+                <span
+                  style={{
+                    fontFamily: 'var(--mono)',
+                    fontSize: '0.875rem',
+                    color: 'var(--gold)',
+                  }}
+                >
+                  {streakDays}일
                 </span>
-                <span className="font-inter text-[0.55rem] tracking-wider" style={{ color: '#4A4540' }}>
-                  DAYS
+                <span
+                  style={{
+                    fontFamily: 'var(--body-kr)',
+                    fontSize: '0.58rem',
+                    color: 'var(--ink-dim)',
+                  }}
+                >
+                  연속
                 </span>
               </div>
             </div>
           )}
         </header>
 
-        <div className="px-4 sm:px-6 pt-6 max-w-3xl">
+        {/* Content area */}
+        <div className="px-6 sm:px-8 pt-7 pb-24 lg:pb-8 max-w-2xl">
 
           {/* NPC Banner */}
           <div
-            className="mb-6 relative overflow-hidden"
+            className="mb-7 relative"
             style={{
-              background: '#1C1A18',
-              borderTop:    `1px solid ${npcGlow}30`,
-              borderLeft:   `1px solid ${npcGlow}20`,
-              borderRight:  '1px solid #1A2E27',
-              borderBottom: '1px solid #151F1B',
-              borderRadius: '4px',
-              boxShadow: `0 0 20px ${npcGlow}10`,
+              background: 'var(--panel)',
+              border: '1px solid var(--border)',
+              borderLeft: `3px solid ${npcColor}60`,
             }}
           >
-            <div className="dancheong-stripe" />
-            <div className="flex items-center justify-between px-4 py-3 pl-5">
-              <div className="flex items-center gap-2.5">
-                <span className="text-base">{NPC_ICON[profile.npc_type]}</span>
-                <div>
-                  <p
-                    className="font-inter text-[0.65rem] tracking-wider uppercase mb-0.5"
-                    style={{ color: npcGlow + '90' }}
-                  >
-                    {NPC_NAME[profile.npc_type]}
-                  </p>
-                  <p
-                    className="font-hahmlet text-[0.875rem]"
-                    style={{ color: '#C8C0B0' }}
-                  >
-                    {bannerMessage}
-                  </p>
-                </div>
+            <div className="flex items-start justify-between gap-4 px-4 py-3.5">
+              <div className="flex-1 min-w-0">
+                <p
+                  style={{
+                    fontFamily: 'var(--display)',
+                    fontSize: '0.58rem',
+                    letterSpacing: '0.16em',
+                    textTransform: 'uppercase',
+                    color: npcColor,
+                    marginBottom: '0.35rem',
+                  }}
+                >
+                  {NPC_NAME[profile.npc_type]}
+                </p>
+                <p
+                  style={{
+                    fontFamily: 'var(--body-kr)',
+                    fontSize: '0.875rem',
+                    color: 'var(--parchment)',
+                    lineHeight: 1.6,
+                    opacity: 0.85,
+                  }}
+                >
+                  {bannerMessage}
+                </p>
               </div>
               <Link
                 href="/briefing"
-                className="shrink-0 font-cinzel text-[0.7rem] tracking-wider font-bold transition-colors ml-4"
-                style={{ color: npcGlow, borderBottom: `1px solid ${npcGlow}50` }}
+                className="shrink-0 transition-colors"
+                style={{
+                  fontFamily: 'var(--display)',
+                  fontSize: '0.65rem',
+                  letterSpacing: '0.12em',
+                  color: npcColor,
+                  borderBottom: `1px solid ${npcColor}50`,
+                  paddingBottom: '1px',
+                  whiteSpace: 'nowrap',
+                }}
+                onMouseEnter={() => {}}
               >
                 브리핑 →
               </Link>
@@ -278,34 +392,40 @@ export default async function DashboardPage() {
         </div>
       </main>
 
-      {/* ── Mobile bottom tab bar ──────────────── */}
+      {/* ── Mobile bottom navigation ────────────── */}
       <nav
         className="lg:hidden fixed bottom-0 left-0 right-0 z-20 flex"
         style={{
-          background: '#141210',
-          borderTop: '1px solid #2A4A3E',
-          height: '60px',
+          background: 'var(--panel)',
+          borderTop: '1px solid var(--border)',
+          height: '56px',
         }}
       >
         {[
-          { href: '/dashboard', icon: '⚔', label: '퀘스트', active: true },
-          { href: '/briefing',  icon: NPC_ICON[profile.npc_type], label: '브리핑', active: false },
-          { href: '/recap',     icon: '🎬', label: '리캡',   active: false },
+          { href: '/dashboard', label: '퀘스트', active: true },
+          { href: '/briefing',  label: '브리핑',  active: false },
+          { href: '/recap',     label: '회고',    active: false },
         ].map((tab) => (
           <Link
             key={tab.href}
             href={tab.href}
-            className="flex-1 flex flex-col items-center justify-center gap-0.5 relative transition-colors"
-            style={{ color: tab.active ? '#D4A017' : '#5A5550' }}
+            className="flex-1 flex flex-col items-center justify-center relative transition-colors"
+            style={{ color: tab.active ? 'var(--parchment)' : 'var(--ink-dim)' }}
           >
             {tab.active && (
               <div
-                className="absolute top-0 left-4 right-4 h-[2px]"
-                style={{ background: '#D4A017', boxShadow: '0 0 8px #D4A01780' }}
+                className="absolute top-0 left-4 right-4 h-[1.5px]"
+                style={{ background: 'var(--gold)' }}
               />
             )}
-            <span className="text-base leading-none">{tab.icon}</span>
-            <span className="font-cinzel text-[0.58rem] tracking-wider font-bold">{tab.label}</span>
+            <span
+              style={{
+                fontFamily: 'var(--body-kr)',
+                fontSize: '0.72rem',
+              }}
+            >
+              {tab.label}
+            </span>
           </Link>
         ))}
       </nav>

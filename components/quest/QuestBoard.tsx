@@ -18,24 +18,24 @@ type XPPopup = {
 }
 
 const STAT_COLORS: Record<StatType, string> = {
-  strength:     '#C0392B',
-  intelligence: '#1A5F7A',
-  charisma:     '#6B3FA0',
+  strength:     '#9B2D20',
+  intelligence: '#2E6B5A',
+  charisma:     '#5C3580',
 }
 
 const GRADE_ORDER: QuestGrade[] = ['main', 'weekly', 'daily']
 
-const SECTION_ACCENT: Record<QuestGrade, string> = {
-  main:   '#C0392B',
-  weekly: '#6B3FA0',
-  daily:  '#1A5F7A',
+const GRADE_ACCENT: Record<QuestGrade, string> = {
+  main:   '#9B2D20',
+  weekly: '#5C3580',
+  daily:  '#2E6B5A',
 }
 
 export default function QuestBoard({ initialQuests }: Props) {
   const router = useRouter()
-  const [quests, setQuests]     = useState<Quest[]>(initialQuests)
+  const [quests,    setQuests]    = useState<Quest[]>(initialQuests)
   const [modalOpen, setModalOpen] = useState(false)
-  const [popups, setPopups]     = useState<XPPopup[]>([])
+  const [popups,    setPopups]    = useState<XPPopup[]>([])
 
   const grouped = groupQuestsByGrade(quests)
 
@@ -72,7 +72,7 @@ export default function QuestBoard({ initialQuests }: Props) {
     const res = await fetch(`/api/quests/${id}`, { method: 'PATCH' })
     if (!res.ok) {
       setQuests((qs) => [target, ...qs])
-      showPopup('완료 실패', '#C0392B')
+      showPopup('완료 실패', '#9B2D20')
       return
     }
     router.refresh()
@@ -92,30 +92,21 @@ export default function QuestBoard({ initialQuests }: Props) {
       {/* Board header */}
       <div className="flex items-center justify-between mb-6">
         <h2
-          className="font-cinzel font-bold tracking-wide"
-          style={{ color: '#D4A017', fontSize: '1rem', letterSpacing: '0.12em' }}
+          style={{
+            fontFamily: 'var(--display)',
+            fontSize: '0.75rem',
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            color: 'var(--ink)',
+            fontWeight: 400,
+          }}
         >
-          QUEST BOARD
+          퀘스트 보드
         </h2>
         <button
           onClick={() => setModalOpen(true)}
-          className="font-cinzel font-bold text-[0.78rem] tracking-wider transition-all"
-          style={{
-            background: '#D4A017',
-            color: '#0F0E0C',
-            padding: '7px 20px',
-            clipPath: 'polygon(0 5px, 5px 0, calc(100% - 5px) 0, 100% 5px, 100% calc(100% - 5px), calc(100% - 5px) 100%, 5px 100%, 0 calc(100% - 5px))',
-          }}
-          onMouseEnter={(e) => {
-            const el = e.currentTarget
-            el.style.background = '#F5C518'
-            el.style.boxShadow = '0 0 20px #D4A01760'
-          }}
-          onMouseLeave={(e) => {
-            const el = e.currentTarget
-            el.style.background = '#D4A017'
-            el.style.boxShadow = 'none'
-          }}
+          className="btn-primary"
+          style={{ padding: '6px 18px', fontSize: '0.7rem' }}
         >
           + 새 퀘스트
         </button>
@@ -126,42 +117,51 @@ export default function QuestBoard({ initialQuests }: Props) {
         <div
           className="text-center py-16 px-8"
           style={{
-            background: '#1C1A18',
-            borderTop:    '1px solid #2A4A3E',
-            borderLeft:   '1px solid #243D33',
-            borderRight:  '1px solid #1A2E27',
-            borderBottom: '1px solid #151F1B',
-            borderRadius: '4px',
+            background: 'var(--panel)',
+            border: '1px solid var(--border)',
           }}
         >
-          <div
-            className="text-5xl mb-4 select-none"
-            style={{ filter: 'grayscale(0.3) drop-shadow(0 0 12px #D4A01730)' }}
-          >
-            🦁
+          {/* Haechi mark — stylized SVG */}
+          <div className="flex justify-center mb-5">
+            <svg
+              width="64" height="64" viewBox="0 0 64 64"
+              fill="none" aria-hidden
+              style={{ color: 'var(--gold)', opacity: 0.5 }}
+            >
+              <circle cx="32" cy="32" r="30" stroke="currentColor" strokeWidth="1" />
+              <circle cx="32" cy="32" r="20" stroke="currentColor" strokeWidth="0.75" opacity="0.6" />
+              <circle cx="32" cy="32" r="10" stroke="currentColor" strokeWidth="0.5" opacity="0.4" />
+              <line x1="32" y1="2"  x2="32" y2="62" stroke="currentColor" strokeWidth="0.5" opacity="0.3" />
+              <line x1="2"  y1="32" x2="62" y2="32" stroke="currentColor" strokeWidth="0.5" opacity="0.3" />
+              <line x1="11" y1="11" x2="53" y2="53" stroke="currentColor" strokeWidth="0.5" opacity="0.2" />
+              <line x1="53" y1="11" x2="11" y2="53" stroke="currentColor" strokeWidth="0.5" opacity="0.2" />
+            </svg>
           </div>
           <p
-            className="font-hahmlet font-semibold mb-2"
-            style={{ color: '#8A8580', fontSize: '1rem' }}
+            style={{
+              fontFamily: 'var(--body-kr)',
+              fontWeight: 600,
+              fontSize: '1rem',
+              color: 'var(--ink)',
+              marginBottom: '0.5rem',
+            }}
           >
-            모험이 아직 시작되지 않았습니다
+            아직 기록되지 않은 모험
           </p>
           <p
-            className="font-noto text-[0.8rem] mb-6"
-            style={{ color: '#5A5550' }}
+            style={{
+              fontFamily: 'var(--body-kr)',
+              fontSize: '0.82rem',
+              color: 'var(--ink-dim)',
+              marginBottom: '1.75rem',
+            }}
           >
-            첫 번째 임무를 등록하고 전설을 시작하세요.
+            첫 번째 임무를 등록하고 얼담을 시작하세요.
           </p>
           <button
             onClick={() => setModalOpen(true)}
-            className="font-cinzel font-bold text-[0.78rem] tracking-wider"
-            style={{
-              background: 'transparent',
-              color: '#D4A017',
-              border: '1px solid #D4A01750',
-              padding: '8px 24px',
-              borderRadius: '2px',
-            }}
+            className="btn-primary"
+            style={{ padding: '9px 28px' }}
           >
             + 첫 퀘스트 등록하기
           </button>
@@ -169,48 +169,49 @@ export default function QuestBoard({ initialQuests }: Props) {
       ) : (
         <div className="space-y-8">
           {GRADE_ORDER.map((grade) => {
-            const items = grouped[grade]
+            const items  = grouped[grade]
             if (items.length === 0) return null
-            const accent = SECTION_ACCENT[grade]
+            const accent = GRADE_ACCENT[grade]
             return (
               <section key={grade}>
-                {/* Section header */}
+                {/* Section header — editorial chapter marker */}
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="h-px flex-1" style={{ background: `linear-gradient(90deg, ${accent}60, transparent)` }} />
-                  <div className="flex items-center gap-1.5">
-                    <div
-                      style={{
-                        width: 6, height: 6,
-                        background: accent,
-                        clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-                        boxShadow: `0 0 6px ${accent}`,
-                      }}
-                    />
-                    <span
-                      className="font-cinzel font-bold text-[0.68rem] tracking-[0.18em] uppercase"
-                      style={{ color: accent }}
-                    >
-                      {GRADE_LABELS[grade]}
-                    </span>
-                    <span
-                      className="font-inter text-[0.65rem]"
-                      style={{ color: '#4A4540' }}
-                    >
-                      ({items.length})
-                    </span>
-                    <div
-                      style={{
-                        width: 6, height: 6,
-                        background: accent,
-                        clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-                        boxShadow: `0 0 6px ${accent}`,
-                      }}
-                    />
-                  </div>
-                  <div className="h-px flex-1" style={{ background: `linear-gradient(270deg, ${accent}60, transparent)` }} />
+                  <div
+                    className="h-px flex-1"
+                    style={{
+                      background: `linear-gradient(90deg, ${accent}50, transparent)`,
+                    }}
+                  />
+                  <span
+                    style={{
+                      fontFamily: 'var(--display)',
+                      fontSize: '0.6rem',
+                      letterSpacing: '0.22em',
+                      textTransform: 'uppercase',
+                      color: accent,
+                      fontWeight: 400,
+                    }}
+                  >
+                    {GRADE_LABELS[grade]}
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: 'var(--mono)',
+                      fontSize: '0.6rem',
+                      color: 'var(--ink-dim)',
+                    }}
+                  >
+                    {items.length}
+                  </span>
+                  <div
+                    className="h-px flex-1"
+                    style={{
+                      background: `linear-gradient(270deg, ${accent}50, transparent)`,
+                    }}
+                  />
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   {items.map((quest) => (
                     <QuestCard
                       key={quest.id}
@@ -230,13 +231,19 @@ export default function QuestBoard({ initialQuests }: Props) {
         <AddQuestModal onClose={() => setModalOpen(false)} onCreate={handleCreate} />
       )}
 
-      {/* XP 획득 팝업 */}
+      {/* XP float popups */}
       <div className="fixed top-1/3 left-1/2 -translate-x-1/2 pointer-events-none z-40">
         {popups.map((p) => (
           <div
             key={p.id}
-            className="font-cinzel-deco font-bold text-3xl animate-xp-popup"
-            style={{ color: p.color, textShadow: `0 0 20px ${p.color}` }}
+            className="animate-xp-float text-center"
+            style={{
+              fontFamily: 'var(--mono)',
+              fontWeight: 500,
+              fontSize: '1.5rem',
+              color: p.color,
+              letterSpacing: '0.04em',
+            }}
           >
             {p.text}
           </div>

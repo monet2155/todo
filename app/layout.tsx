@@ -1,23 +1,32 @@
 import type { Metadata } from 'next'
-import { Cinzel, Cinzel_Decorative, Inter, Hahmlet, Noto_Sans_KR } from 'next/font/google'
+import {
+  Cormorant_Garamond,
+  DM_Mono,
+  Lora,
+  Hahmlet,
+  Gowun_Batang,
+} from 'next/font/google'
 import './globals.css'
 
-const cinzel = Cinzel({
+const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
-  variable: '--font-cinzel',
+  weight: ['300', '400', '600'],
+  style: ['normal', 'italic'],
+  variable: '--font-cormorant',
   display: 'swap',
 })
 
-const cinzelDeco = Cinzel_Decorative({
+const dmMono = DM_Mono({
   subsets: ['latin'],
-  weight: ['400', '700'],
-  variable: '--font-cinzel-deco',
+  weight: ['400', '500'],
+  variable: '--font-mono',
   display: 'swap',
 })
 
-const inter = Inter({
+const lora = Lora({
   subsets: ['latin'],
-  variable: '--font-inter',
+  weight: ['400', '600'],
+  variable: '--font-lora',
   display: 'swap',
 })
 
@@ -28,16 +37,16 @@ const hahmlet = Hahmlet({
   display: 'swap',
 })
 
-const notoSansKR = Noto_Sans_KR({
+const gowunBatang = Gowun_Batang({
   subsets: ['latin'],
-  weight: ['400', '500', '700'],
-  variable: '--font-noto',
+  weight: ['400', '700'],
+  variable: '--font-gowun',
   display: 'swap',
 })
 
 export const metadata: Metadata = {
-  title: 'Chronicles of 나',
-  description: '당신의 하루가 전설이 된다',
+  title: '얼담',
+  description: '당신의 얼로 쓰는 이야기',
 }
 
 export default function RootLayout({
@@ -48,7 +57,13 @@ export default function RootLayout({
   return (
     <html
       lang="ko"
-      className={`${cinzel.variable} ${cinzelDeco.variable} ${inter.variable} ${hahmlet.variable} ${notoSansKR.variable}`}
+      className={`
+        ${cormorant.variable}
+        ${dmMono.variable}
+        ${lora.variable}
+        ${hahmlet.variable}
+        ${gowunBatang.variable}
+      `}
     >
       <body className="antialiased">{children}</body>
     </html>
