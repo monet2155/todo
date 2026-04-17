@@ -44,6 +44,7 @@
 /* ── Base ────────────────────────────────────────── */
 html {
   background-color: var(--lacquer);
+  overflow-x: hidden;
 }
 
 body {
@@ -52,6 +53,7 @@ body {
   min-height: 100vh;
   position: relative;
   font-family: var(--body-kr);
+  overflow-x: hidden;
 }
 
 /* ── Background: Aged Paper Grain ────────────────── */
