@@ -109,7 +109,7 @@ body > * {
   border: 1px solid var(--border);
   color: var(--parchment);
   font-family: var(--body-kr);
-  font-size: 0.9rem;
+  font-size: 1rem; /* 16px — iOS Safari auto-zoom 방지 (16px 미만 시 확대됨) */
   padding: 10px 14px;
   width: 100%;
   outline: none;
