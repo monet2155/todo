@@ -130,7 +130,22 @@ export default function NPCDialog({ npcType, quests, stats }: Props) {
     router.push('/dashboard')
   }
 
-  if (phase === 'checking') return null
+  if (phase === 'checking') return (
+    <div
+      className="min-h-screen flex items-center justify-center"
+      style={{ background: 'var(--lacquer)' }}
+    >
+      <div
+        style={{
+          width: 32, height: 32,
+          borderRadius: '50%',
+          background: 'conic-gradient(#B8860B 0%, #9B2D20 25%, #2E6B5A 50%, #5C3580 75%, #B8860B 100%)',
+          animation: 'spin 1.2s linear infinite',
+        }}
+      />
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  )
 
   return (
     <div
@@ -252,15 +267,35 @@ export default function NPCDialog({ npcType, quests, stats }: Props) {
           )}
 
           {phase === 'error' && (
-            <p
-              style={{
-                fontFamily: 'var(--body-kr)',
-                fontSize: '0.875rem',
-                color: '#9B2D20',
-              }}
-            >
-              {errorMsg}
-            </p>
+            <div className="space-y-3">
+              <p
+                style={{
+                  fontFamily: 'var(--body-kr)',
+                  fontSize: '0.875rem',
+                  color: '#9B2D20',
+                }}
+              >
+                {errorMsg}
+              </p>
+              <button
+                onClick={() => {
+                  setPhase('loading')
+                  fetchedRef.current = false
+                  streamBriefing()
+                }}
+                className="btn-ghost"
+                style={{
+                  fontFamily: 'var(--display)',
+                  fontSize: '0.62rem',
+                  letterSpacing: '0.1em',
+                  padding: '6px 16px',
+                  color: accent,
+                  borderColor: `${accent}40`,
+                }}
+              >
+                다시 시도
+              </button>
+            </div>
           )}
         </div>
 

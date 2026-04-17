@@ -1,25 +1,14 @@
 import { requireUser, getProfile } from '@/lib/auth'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
+import { calculateStreak } from '@/lib/stats'
+import { getNPCConfig } from '@/lib/npc-config'
 import Link from 'next/link'
 import QuestBoard from '@/components/quest/QuestBoard'
-import CharacterSheet from '@/components/character-sheet/CharacterSheet'
-import { calculateStreak } from '@/lib/stats'
-import LogoutButton from './LogoutButton'
+import AppSidebar from '@/components/layout/AppSidebar'
+import MobileNav from '@/components/layout/MobileNav'
+import MobileHeader from './MobileHeader'
 import type { NPCType, Stats } from '@/types'
-
-// ── NPC config ───────────────────────────────────────────────────────
-const NPC_NAME: Record<NPCType, string> = {
-  knight: '기사단장',
-  rival:  '라이벌',
-  sage:   '현자',
-}
-
-const NPC_COLOR: Record<NPCType, string> = {
-  knight: '#B8860B',
-  rival:  '#9B2D20',
-  sage:   '#2E6B5A',
-}
 
 function getBannerMessage(
   npcType: NPCType,
@@ -44,57 +33,6 @@ function getBannerMessage(
   return messages[npcType]
 }
 
-// ── Nav link ─────────────────────────────────────────────────────────
-function NavLink({
-  href,
-  label,
-  sub,
-  active,
-}: {
-  href: string
-  label: string
-  sub?: string
-  active?: boolean
-}) {
-  return (
-    <Link
-      href={href}
-      className="relative flex items-baseline gap-2 py-2 px-3 transition-colors group"
-      style={{
-        color: active ? 'var(--parchment)' : 'var(--ink)',
-      }}
-    >
-      {active && (
-        <div
-          className="absolute left-0 top-1 bottom-1 w-[1.5px]"
-          style={{ background: 'var(--gold)' }}
-        />
-      )}
-      <span
-        style={{
-          fontFamily: 'var(--body-kr)',
-          fontSize: '0.875rem',
-        }}
-      >
-        {label}
-      </span>
-      {sub && (
-        <span
-          style={{
-            fontFamily: 'var(--display)',
-            fontSize: '0.58rem',
-            letterSpacing: '0.08em',
-            color: active ? 'var(--gold)' : 'var(--ink-dim)',
-          }}
-        >
-          {sub}
-        </span>
-      )}
-    </Link>
-  )
-}
-
-// ── Main ─────────────────────────────────────────────────────────────
 export default async function DashboardPage() {
   const user    = await requireUser()
   const profile = await getProfile(user.id)
@@ -121,6 +59,7 @@ export default async function DashboardPage() {
   const completionDates  = (completions ?? []).map((c) => c.completed_at.slice(0, 10))
   const streakDays       = calculateStreak(completionDates)
   const activeQuestCount = quests?.length ?? 0
+  const npcCfg           = getNPCConfig(profile.npc_type)
 
   const bannerMessage = getBannerMessage(
     profile.npc_type,
@@ -129,261 +68,82 @@ export default async function DashboardPage() {
     activeQuestCount,
   )
 
-  const npcColor = NPC_COLOR[profile.npc_type]
-
   return (
     <div className="min-h-screen flex" style={{ background: 'var(--lacquer)' }}>
 
-      {/* ── LEFT PAGE — Character & Navigation (desktop only) ── */}
-      <aside
-        className="hidden lg:flex flex-col fixed left-0 top-0 h-full w-[240px] z-20"
-        style={{ background: 'var(--panel)' }}
-      >
-        {/* Binding line (right edge) */}
-        <div
-          className="binding-line absolute right-0 top-0 bottom-0"
-          style={{ zIndex: 1 }}
-        />
+      {/* Shared sidebar — nav first, then stats */}
+      <AppSidebar activePage="dashboard" />
 
-        {/* Brand */}
-        <div className="px-6 pt-7 pb-5">
-          <div className="flex items-baseline gap-2 mb-1">
-            <h1
-              style={{
-                fontFamily: 'var(--body-kr)',
-                fontSize: '1.5rem',
-                fontWeight: 700,
-                color: 'var(--parchment)',
-                letterSpacing: '-0.01em',
-                lineHeight: 1,
-              }}
-            >
-              얼담
-            </h1>
-            <span
-              style={{
-                fontFamily: 'var(--display)',
-                fontSize: '0.58rem',
-                letterSpacing: '0.1em',
-                color: 'var(--gold)',
-                fontWeight: 400,
-              }}
-            >
-              {profile.name}
-            </span>
-          </div>
-          <p
-            style={{
-              fontFamily: 'var(--body-kr)',
-              fontSize: '0.72rem',
-              color: 'var(--ink)',
-              lineHeight: 1.5,
-            }}
-          >
-            당신의 얼로 쓰는 이야기
-          </p>
-        </div>
-
-        {/* Gold divider */}
-        <div
-          className="mx-6 h-px"
-          style={{ background: 'linear-gradient(90deg, var(--gold), transparent)', opacity: 0.4 }}
-        />
-
-        {/* Character sheet */}
-        <div className="px-5 py-5">
-          {stats ? (
-            <CharacterSheet
-              stats={stats}
-              totalCompleted={totalCompleted}
-              streakDays={streakDays}
-            />
-          ) : (
-            <div className="h-52 skeleton" />
-          )}
-        </div>
-
-        {/* Divider */}
-        <div
-          className="mx-6 h-px"
-          style={{ background: 'linear-gradient(90deg, var(--border), transparent)', opacity: 0.5 }}
-        />
-
-        {/* Navigation */}
-        <nav className="px-3 py-4 flex-1 space-y-0.5">
-          <NavLink
-            href="/dashboard"
-            label="퀘스트 보드"
-            active
-          />
-          <NavLink
-            href="/briefing"
-            label="브리핑"
-            sub={NPC_NAME[profile.npc_type]}
-          />
-          <NavLink
-            href="/recap"
-            label="회고"
-          />
-        </nav>
-
-        {/* Logout */}
-        <div className="px-6 pb-6">
-          <LogoutButton />
-        </div>
-      </aside>
-
-      {/* ── RIGHT PAGE — Content ────────────────── */}
-      <main
-        className="flex-1 lg:ml-[240px]"
-        style={{ minHeight: '100vh' }}
-      >
-        {/* Running header (desktop) */}
-        <div
-          className="hidden lg:flex items-center justify-between px-8 py-3"
-          style={{
-            borderBottom: '1px solid var(--border)',
-            opacity: 0.7,
-          }}
-        >
-          <span className="running-header">얼담&nbsp;&nbsp;·&nbsp;&nbsp;퀘스트 보드</span>
-          <span className="running-header">
-            {profile.name}의 모험
-          </span>
-        </div>
+      {/* Main */}
+      <main className="flex-1 lg:ml-[240px] min-h-screen flex flex-col">
 
         {/* Mobile header */}
-        <header
-          className="lg:hidden sticky top-0 z-10 px-4 pt-4 pb-3"
-          style={{
-            background: 'var(--lacquer)',
-            borderBottom: '1px solid var(--border)',
-          }}
-        >
-          <div className="flex items-center justify-between mb-2.5">
-            <h1
-              style={{
-                fontFamily: 'var(--body-kr)',
-                fontSize: '1.25rem',
-                fontWeight: 700,
-                color: 'var(--parchment)',
-              }}
-            >
-              얼담
-            </h1>
-            <LogoutButton />
-          </div>
+        <MobileHeader
+          name={profile.name}
+          stats={stats ?? null}
+          streakDays={streakDays}
+          totalCompleted={totalCompleted}
+        />
 
-          {/* Mobile compact stats */}
-          {stats && (
-            <div className="flex items-center gap-4">
-              {[
-                { label: 'STR', value: stats.strength,     color: '#9B2D20' },
-                { label: 'INT', value: stats.intelligence, color: '#2E6B5A' },
-                { label: 'CHA', value: stats.charisma,     color: '#5C3580' },
-              ].map((s) => (
-                <div key={s.label} className="flex items-baseline gap-1">
-                  <span
-                    style={{
-                      fontFamily: 'var(--mono)',
-                      fontSize: '1rem',
-                      fontWeight: 500,
-                      color: s.color,
-                      lineHeight: 1,
-                    }}
-                  >
-                    {s.value}
-                  </span>
-                  <span
-                    style={{
-                      fontFamily: 'var(--display)',
-                      fontSize: '0.52rem',
-                      letterSpacing: '0.1em',
-                      color: 'var(--ink-dim)',
-                    }}
-                  >
-                    {s.label}
-                  </span>
-                </div>
-              ))}
-              <div className="ml-auto flex items-baseline gap-1">
-                <span
-                  style={{
-                    fontFamily: 'var(--mono)',
-                    fontSize: '0.875rem',
-                    color: 'var(--gold)',
-                  }}
-                >
-                  {streakDays}일
-                </span>
-                <span
-                  style={{
-                    fontFamily: 'var(--body-kr)',
-                    fontSize: '0.58rem',
-                    color: 'var(--ink-dim)',
-                  }}
-                >
-                  연속
-                </span>
-              </div>
-            </div>
-          )}
-        </header>
+        {/* Content */}
+        <div className="flex-1 px-5 sm:px-8 pt-6 pb-24 lg:pb-10">
 
-        {/* Content area */}
-        <div className="px-6 sm:px-8 pt-7 pb-24 lg:pb-8 max-w-2xl">
-
-          {/* NPC Banner */}
+          {/* NPC Banner — compact single-line strip */}
           <div
-            className="mb-7 relative"
+            className="flex items-center gap-3 mb-6 px-4 py-3"
             style={{
               background: 'var(--panel)',
+              borderLeft: `3px solid ${npcCfg.color}50`,
               border: '1px solid var(--border)',
-              borderLeft: `3px solid ${npcColor}60`,
+              borderLeftWidth: '3px',
+              borderLeftColor: `${npcCfg.color}50`,
             }}
           >
-            <div className="flex items-start justify-between gap-4 px-4 py-3.5">
-              <div className="flex-1 min-w-0">
-                <p
-                  style={{
-                    fontFamily: 'var(--display)',
-                    fontSize: '0.58rem',
-                    letterSpacing: '0.16em',
-                    textTransform: 'uppercase',
-                    color: npcColor,
-                    marginBottom: '0.35rem',
-                  }}
-                >
-                  {NPC_NAME[profile.npc_type]}
-                </p>
-                <p
-                  style={{
-                    fontFamily: 'var(--body-kr)',
-                    fontSize: '0.875rem',
-                    color: 'var(--parchment)',
-                    lineHeight: 1.6,
-                    opacity: 0.85,
-                  }}
-                >
-                  {bannerMessage}
-                </p>
-              </div>
-              <Link
-                href="/briefing"
-                className="shrink-0 transition-colors"
-                style={{
-                  fontFamily: 'var(--display)',
-                  fontSize: '0.65rem',
-                  letterSpacing: '0.12em',
-                  color: npcColor,
-                  borderBottom: `1px solid ${npcColor}50`,
-                  paddingBottom: '1px',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                브리핑 →
-              </Link>
-            </div>
+            <p
+              style={{
+                fontFamily: 'var(--display)',
+                fontSize: '0.6rem',
+                letterSpacing: '0.14em',
+                textTransform: 'uppercase',
+                color: npcCfg.color,
+                flexShrink: 0,
+              }}
+            >
+              {npcCfg.label}
+            </p>
+            <div
+              style={{
+                width: 1,
+                height: '0.875rem',
+                background: 'var(--border)',
+                flexShrink: 0,
+              }}
+            />
+            <p
+              className="flex-1 truncate"
+              style={{
+                fontFamily: 'var(--body-kr)',
+                fontSize: '0.8125rem',
+                color: 'var(--parchment)',
+                opacity: 0.8,
+              }}
+            >
+              {bannerMessage}
+            </p>
+            <Link
+              href="/briefing"
+              style={{
+                fontFamily: 'var(--display)',
+                fontSize: '0.62rem',
+                letterSpacing: '0.1em',
+                color: npcCfg.color,
+                flexShrink: 0,
+                borderBottom: `1px solid ${npcCfg.color}40`,
+                paddingBottom: '1px',
+              }}
+            >
+              브리핑 →
+            </Link>
           </div>
 
           {/* Quest Board */}
@@ -391,44 +151,8 @@ export default async function DashboardPage() {
         </div>
       </main>
 
-      {/* ── Mobile bottom navigation ────────────── */}
-      <nav
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-20 flex"
-        style={{
-          background: 'var(--panel)',
-          borderTop: '1px solid var(--border)',
-          height: '56px',
-        }}
-      >
-        {[
-          { href: '/dashboard', label: '퀘스트', active: true },
-          { href: '/briefing',  label: '브리핑',  active: false },
-          { href: '/recap',     label: '회고',    active: false },
-        ].map((tab) => (
-          <Link
-            key={tab.href}
-            href={tab.href}
-            className="flex-1 flex flex-col items-center justify-center relative transition-colors"
-            style={{ color: tab.active ? 'var(--parchment)' : 'var(--ink-dim)' }}
-          >
-            {tab.active && (
-              <div
-                className="absolute top-0 left-4 right-4 h-[1.5px]"
-                style={{ background: 'var(--gold)' }}
-              />
-            )}
-            <span
-              style={{
-                fontFamily: 'var(--body-kr)',
-                fontSize: '0.72rem',
-              }}
-            >
-              {tab.label}
-            </span>
-          </Link>
-        ))}
-      </nav>
-
+      {/* Mobile bottom nav */}
+      <MobileNav activePage="dashboard" npcLabel={npcCfg.label} />
     </div>
   )
 }

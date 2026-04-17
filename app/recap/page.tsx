@@ -3,6 +3,8 @@ import { requireUser, getProfile } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import RecapTrigger from './RecapTrigger'
+import AppSidebar from '@/components/layout/AppSidebar'
+import MobileNav from '@/components/layout/MobileNav'
 import type { Recap } from '@/types'
 
 function getWeekNumber(date: Date): number {
@@ -38,19 +40,13 @@ export default async function RecapPage() {
   ) as Recap[]
 
   return (
-    <div
-      className="min-h-screen"
-      style={{ background: 'var(--lacquer)' }}
-    >
-      {/* Running header */}
-      <div
-        className="px-8 py-3"
-        style={{ borderBottom: '1px solid var(--border)', opacity: 0.7 }}
-      >
-        <span className="running-header">얼담&nbsp;&nbsp;·&nbsp;&nbsp;회고</span>
-      </div>
+    <div className="min-h-screen flex" style={{ background: 'var(--lacquer)' }}>
 
-      <div className="px-6 sm:px-8 pt-8 pb-16 max-w-2xl mx-auto">
+      <AppSidebar activePage="recap" />
+
+      <main className="flex-1 lg:ml-[240px] min-h-screen flex flex-col">
+
+      <div className="flex-1 px-5 sm:px-8 pt-8 pb-24 lg:pb-10 max-w-2xl">
 
         {/* Page title */}
         <div className="mb-8">
@@ -263,24 +259,11 @@ export default async function RecapPage() {
           </div>
         )}
 
-        {/* Back to dashboard */}
-        <div className="mt-8">
-          <Link
-            href="/dashboard"
-            style={{
-              fontFamily: 'var(--display)',
-              fontSize: '0.65rem',
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              color: 'var(--ink)',
-              borderBottom: '1px solid var(--border)',
-              paddingBottom: '1px',
-            }}
-          >
-            ← 퀘스트 보드로 돌아가기
-          </Link>
-        </div>
       </div>
+
+      </main>
+
+      <MobileNav activePage="recap" />
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }

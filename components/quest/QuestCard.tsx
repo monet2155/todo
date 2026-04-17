@@ -11,30 +11,27 @@ type Props = {
   disabled?: boolean
 }
 
-// Grade seal — outline SVG, no fill
 const GRADE_SEAL = {
   main: (color: string) => (
-    <svg width="22" height="24" viewBox="0 0 22 24" fill="none" aria-hidden>
-      <polygon
-        points="11,1.5 20.5,6.5 20.5,17.5 11,22.5 1.5,17.5 1.5,6.5"
+    <svg width="20" height="22" viewBox="0 0 20 22" fill="none" aria-hidden>
+      <polygon points="10,1 19,5.5 19,16.5 10,21 1,16.5 1,5.5"
         stroke={color} strokeWidth="1" />
-      <line x1="11" y1="1.5"  x2="11" y2="22.5"  stroke={color} strokeWidth="0.5" opacity="0.4" />
-      <line x1="1.5" y1="6.5" x2="20.5" y2="17.5" stroke={color} strokeWidth="0.5" opacity="0.4" />
-      <line x1="1.5" y1="17.5" x2="20.5" y2="6.5" stroke={color} strokeWidth="0.5" opacity="0.4" />
+      <line x1="10" y1="1"  x2="10" y2="21"   stroke={color} strokeWidth="0.5" opacity="0.35" />
+      <line x1="1"  y1="5.5" x2="19" y2="16.5" stroke={color} strokeWidth="0.5" opacity="0.35" />
+      <line x1="1"  y1="16.5" x2="19" y2="5.5" stroke={color} strokeWidth="0.5" opacity="0.35" />
     </svg>
   ),
   weekly: (color: string) => (
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden>
-      <polygon
-        points="11,1.5 20.5,8 17,19.5 5,19.5 1.5,8"
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
+      <polygon points="10,1 19,7.5 15.5,18 4.5,18 1,7.5"
         stroke={color} strokeWidth="1" />
-      <circle cx="11" cy="11" r="3" stroke={color} strokeWidth="0.5" opacity="0.5" />
+      <circle cx="10" cy="10" r="3" stroke={color} strokeWidth="0.5" opacity="0.45" />
     </svg>
   ),
   daily: (color: string) => (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
-      <circle cx="10" cy="10" r="8.5" stroke={color} strokeWidth="1" />
-      <circle cx="10" cy="10" r="3.5" stroke={color} strokeWidth="0.5" opacity="0.5" />
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
+      <circle cx="9" cy="9" r="7.5" stroke={color} strokeWidth="1" />
+      <circle cx="9" cy="9" r="3"   stroke={color} strokeWidth="0.5" opacity="0.45" />
     </svg>
   ),
 }
@@ -59,7 +56,7 @@ function getDaysUntil(due: string): number {
   return Math.round((d.getTime() - today.getTime()) / 86400000)
 }
 
-function formatDueLabel(due: string, overdue: boolean, daysLeft: number): string {
+function formatDueLabel(overdue: boolean, daysLeft: number): string {
   if (overdue)        return '기한 초과'
   if (daysLeft === 0) return '오늘 마감'
   if (daysLeft === 1) return '내일 마감'
@@ -92,30 +89,26 @@ export default function QuestCard({ quest, onComplete, onDelete, disabled }: Pro
       className="relative overflow-hidden group"
       style={{
         background: 'var(--card)',
-        border: `1px solid ${accentColor}30`,
-        borderLeft: `1px solid ${accentColor}60`,
-        transition: 'background 150ms, border-color 150ms',
+        border: `1px solid ${accentColor}25`,
+        borderLeft: `2px solid ${accentColor}55`,
+        transition: 'background 150ms',
       }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.background = 'var(--card-hi)'
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.background = 'var(--card)'
-      }}
+      onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--card-hi)' }}
+      onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--card)' }}
     >
-      {/* Completion seal overlay */}
+      {/* Completion seal */}
       {showSeal && (
         <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
           <div
             className="animate-ink-stamp flex items-center justify-center"
             style={{
-              width: 56, height: 56,
+              width: 52, height: 52,
               borderRadius: '50%',
               background: '#9B2D20',
-              border: '2px solid #C0392B',
+              border: '1.5px solid #C0392B',
               color: '#E8DBBE',
               fontFamily: 'var(--body-kr)',
-              fontSize: '1.125rem',
+              fontSize: '1rem',
               fontWeight: 600,
             }}
           >
@@ -125,26 +118,30 @@ export default function QuestCard({ quest, onComplete, onDelete, disabled }: Pro
       )}
 
       <div className="flex">
-        {/* Left margin — grade seal */}
+        {/* Seal column */}
         <div
           className="flex items-center justify-center shrink-0"
           style={{
-            width: 48,
-            borderRight: `1px solid ${accentColor}20`,
-            padding: '14px 0',
+            width: 44,
+            paddingTop: 14,
+            paddingBottom: 14,
+            borderRight: `1px solid ${accentColor}15`,
           }}
         >
           {SealSvg(accentColor)}
         </div>
 
-        {/* Main content */}
-        <div className="flex-1 min-w-0 px-4 py-3">
-          <div className="flex items-start justify-between gap-2">
+        {/* Content */}
+        <div className="flex-1 min-w-0 px-3.5 py-3">
+
+          {/* Row 1: Title + Complete button — both visible at first glance */}
+          <div className="flex items-start gap-2">
             <p
+              className="flex-1 min-w-0"
               style={{
                 fontFamily: 'var(--body-kr)',
                 fontWeight: 600,
-                fontSize: '0.9375rem',
+                fontSize: '0.9rem',
                 lineHeight: 1.45,
                 color: overdue
                   ? '#C05040'
@@ -155,32 +152,47 @@ export default function QuestCard({ quest, onComplete, onDelete, disabled }: Pro
             >
               {quest.title}
             </p>
+
             <button
-              onClick={() => onDelete(quest.id)}
+              onClick={handleComplete}
               disabled={disabled || completing}
-              aria-label="퀘스트 삭제"
-              className="shrink-0 mt-0.5 transition-colors"
+              className="shrink-0 transition-all"
               style={{
-                color: 'var(--ink-dim)',
-                fontSize: '0.7rem',
-                lineHeight: 1,
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
+                fontFamily: 'var(--display)',
+                fontSize: '0.65rem',
+                letterSpacing: '0.1em',
+                color: completing ? 'var(--ink-dim)' : accentColor,
+                border: `1px solid ${completing ? 'var(--border)' : accentColor + '55'}`,
+                background: 'transparent',
+                padding: '3px 12px',
+                cursor: completing ? 'default' : 'pointer',
+                whiteSpace: 'nowrap',
+                marginTop: '1px',
               }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#9B2D20' }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--ink-dim)' }}
+              onMouseEnter={(e) => {
+                if (completing || disabled) return
+                const el = e.currentTarget as HTMLButtonElement
+                el.style.background = accentColor
+                el.style.color = 'var(--lacquer)'
+                el.style.borderColor = accentColor
+              }}
+              onMouseLeave={(e) => {
+                const el = e.currentTarget as HTMLButtonElement
+                el.style.background = 'transparent'
+                el.style.color = completing ? 'var(--ink-dim)' : accentColor
+                el.style.borderColor = completing ? 'var(--border)' : accentColor + '55'
+              }}
             >
-              ✕
+              {completing ? '・・・' : '완료'}
             </button>
           </div>
 
-          {/* Meta row */}
+          {/* Row 2: Meta info + Delete */}
           <div className="flex items-center gap-3 mt-1.5">
             <span
               style={{
                 fontFamily: 'var(--mono)',
-                fontSize: '0.72rem',
+                fontSize: '0.7rem',
                 color: STAT_COLORS[quest.stat_type] ?? 'var(--ink)',
                 fontWeight: 500,
               }}
@@ -198,34 +210,41 @@ export default function QuestCard({ quest, onComplete, onDelete, disabled }: Pro
                     : isUrgent
                       ? '#C0682B'
                       : isNear
-                        ? 'color-mix(in srgb, #C0682B 60%, var(--ink))'
+                        ? '#8B5030'
                         : 'var(--ink-dim)',
                 }}
               >
-                {formatDueLabel(quest.due_date, overdue, daysLeft ?? 0)}
+                {formatDueLabel(overdue, daysLeft ?? 0)}
               </span>
             )}
-          </div>
 
-          {/* Action row */}
-          <div
-            className="flex justify-end mt-3 pt-2.5"
-            style={{ borderTop: `1px solid ${accentColor}15` }}
-          >
             <button
-              onClick={handleComplete}
+              onClick={() => onDelete(quest.id)}
               disabled={disabled || completing}
-              className="btn-primary"
+              className="ml-auto transition-colors"
+              aria-label="퀘스트 삭제"
               style={{
-                padding: '5px 18px',
-                borderColor: completing
-                  ? 'var(--border)'
-                  : `color-mix(in srgb, ${accentColor} 60%, transparent)`,
-                color: completing ? 'var(--ink)' : accentColor,
+                fontFamily: 'var(--body-kr)',
+                fontSize: '0.65rem',
+                color: 'var(--ink-dim)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                opacity: 0,
+                padding: '1px 2px',
               }}
-            >
-              {completing ? '・・・' : '완료하기'}
-            </button>
+              // Show delete on hover via parent group
+              onMouseEnter={(e) => {
+                const el = e.currentTarget as HTMLButtonElement
+                el.style.opacity = '1'
+                el.style.color = '#9B2D20'
+              }}
+              onMouseLeave={(e) => {
+                const el = e.currentTarget as HTMLButtonElement
+                el.style.opacity = '0'
+                el.style.color = 'var(--ink-dim)'
+              }}
+            />
           </div>
         </div>
       </div>
