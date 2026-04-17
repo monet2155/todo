@@ -51,7 +51,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: '얼담',
-  description: '당신의 얼로 쓰는 이야기',
+  description: '당신의 얼을 담다',
 }
 
 export default function RootLayout({

@@ -111,7 +111,7 @@ export default function SignupPage() {
               lineHeight: 1.7,
             }}
           >
-            당신의 얼로 쓰는 이야기
+            당신의 얼을 담다
           </p>
         </div>
 

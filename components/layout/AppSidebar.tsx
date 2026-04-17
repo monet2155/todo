@@ -104,7 +104,7 @@ export default async function AppSidebar({ activePage }: Props) {
             lineHeight: 1.5,
           }}
         >
-          당신의 얼로 쓰는 이야기
+          당신의 얼을 담다
         </p>
       </div>
 

@@ -65,7 +65,7 @@ export default function LoginPage() {
               lineHeight: 1.7,
             }}
           >
-            당신의 얼로 쓰는 이야기
+            당신의 얼을 담다
           </p>
         </div>
 
@@ -124,7 +124,7 @@ export default function LoginPage() {
                 marginTop: '0.25rem',
               }}
             >
-              당신의 얼로 쓰는 이야기
+              당신의 얼을 담다
             </p>
           </div>
 
