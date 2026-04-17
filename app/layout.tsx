@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import {
   Cormorant_Garamond,
   DM_Mono,
@@ -43,6 +43,11 @@ const gowunBatang = Gowun_Batang({
   variable: '--font-gowun',
   display: 'swap',
 })
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+}
 
 export const metadata: Metadata = {
   title: '얼담',
